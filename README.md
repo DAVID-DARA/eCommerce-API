@@ -51,28 +51,26 @@ This project is an API for an online fashion web application built using Java's 
    cd e-commerce_api
 
 2. **Set up the database:**
-- Create a new MySQL/PostgreSQL database.
-- Update the database configuration in application.properties or .env file.
-
+   - Create a new MySQL/PostgreSQL database.
+   - Update the database configuration in application.properties or .env file.
+ 
 3. **Install dependencies:**
     ```bash
     ./mvnw install
-
+   
 4. **Run the application locally:**
     ```bash
     ./mvnw spring-boot:run
-
+   
 5. **Access the API:**
-
-- The API will be running at http://localhost:8080.
+   - The API will be running at http://localhost:8080.
 
 ### Running Tests
 - To run unit and integration tests, use the following command:
     ```bash
     ./mvnw test
 
-
-## Deployment with Docker
+### Deployment with Docker
 1. **Build Docker Image:**
     ```bash
     docker build -t e-commerce-api .
@@ -82,9 +80,9 @@ This project is an API for an online fashion web application built using Java's 
     docker run -p 8080:8080 --env-file .env e-commerce-api
 
 3. **Access the API:**
-- The API will be available at http://localhost:8080 within the Docker container.
+   - The API will be available at http://localhost:8080 within the Docker container.
 
-## Environment Variables
+### Environment Variables
 - The application uses environment variables managed by DotEnv. You can define these in a .env file:
     ```makefile
     DB_URL=jdbc:mysql://localhost:3306/ecommerce_db
