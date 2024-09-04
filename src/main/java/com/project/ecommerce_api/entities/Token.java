@@ -29,7 +29,7 @@ public class Token {
     private User user;
 
     @Column(nullable = false, updatable = false)
-    private Integer token;
+    private String token;
 
     @Enumerated(EnumType.STRING)
     private TokenType type;
