@@ -180,14 +180,12 @@ public class EmailService {
             </body>
             </html>""";
 
-    public void sendWelcomeEmail(String to, String userName, int otp) throws MessagingException {
+    public void sendWelcomeEmail(String to, String userName, String token) throws MessagingException {
         jakarta.mail.internet.MimeMessage message = javaMailSender.createMimeMessage();
 
         String subject = "Welcome to Our Service!";
 
-        String otpText = Integer.toString(otp);
-
-        String finalEmailContent = emailBody.replace("{$name}", userName).replace("{$otp}", otpText).replace("{$help_url}", "google.com");
+        String finalEmailContent = emailBody.replace("{$name}", userName).replace("{$otp}", token).replace("{$help_url}", "google.com");
 
         message.setFrom("no-reply@lorem.com");
         message.setRecipients(MimeMessage.RecipientType.TO, to);

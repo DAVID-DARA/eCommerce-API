@@ -26,8 +26,14 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     private static final String[] WHITE_LIST_URL = {
-            "/api/v1/auth/login",
-            "/api/v1/auth/signup"
+            "/api/v1/auth/signup",
+            "/api/v1/auth/verify",
+            "/api/v1/auth/login"
+    };
+
+    private static final String[] ADMIN_AUTHORITY_URL = {
+            "/api/v1/admin/categories",
+            "/api/v1/admin/categories/{id}"
     };
 
     @Bean
@@ -35,7 +41,8 @@ public class SecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/v1/auth/signup").permitAll()
+                        .requestMatchers(WHITE_LIST_URL).permitAll()
+                        .requestMatchers(ADMIN_AUTHORITY_URL).hasAnyRole("ADMIN", "SUPER_ADMIN")
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)

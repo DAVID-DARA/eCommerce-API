@@ -15,7 +15,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @Entity
-@Table
+@Table(name = "tokens")
 @NoArgsConstructor
 public class Token {
 
@@ -29,7 +29,7 @@ public class Token {
     private User user;
 
     @Column(nullable = false, updatable = false)
-    private Integer token;
+    private String token;
 
     @Enumerated(EnumType.STRING)
     private TokenType type;
