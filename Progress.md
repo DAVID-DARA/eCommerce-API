@@ -44,9 +44,24 @@
 
 ## Date: 2024-09-06
 ### Achievements
-1. Changed Roles from Enum to Entity
-2.  Added separate Enum class RoleTypes for the Role Entity
-3.  Implemented authorities based on roles in User Entity
-4.  Implemented Role Based Access Control on certain endpoints
-5.  Created the add categories endpoint (ADMIN, SUPER_ADMIN)
-6.  Created update and delete category endpoint
+1. Role Refactor:
+   - Refactored Role from an Enum to an Entity.
+   - Created a new RoleTypes Enum for managing different roles in the system.
+   
+2. User Entity Update:
+   - Implemented authority assignment based on user roles in the User entity.
+   
+3. Role-Based Access Control (RBAC):
+   - Applied RBAC to secure specific endpoints based on user roles.
+   - Restricted category management (add, update, delete) to ADMIN and SUPER_ADMIN.
+
+4. Category Management Endpoints:
+   - Created the endpoint for adding categories (POST /api/v1/admin/categories) for ADMIN and SUPER_ADMIN.
+   - Added endpoints for updating and deleting categories.
+
+### Notes
+- The implementation of Role Based Access Control(RBAC) has greatly improved the security of the API.
+
+### Next Steps
+- Implement additional endpoints as per the project’s requirements.
+- Implement additional services as per the project’s requirements.
