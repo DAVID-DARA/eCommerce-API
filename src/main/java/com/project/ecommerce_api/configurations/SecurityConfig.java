@@ -31,12 +31,18 @@ public class SecurityConfig {
             "/api/v1/auth/login"
     };
 
+    private static final String[] ADMIN_AUTHORITY_URL = {
+            "/api/v1/admin/categories",
+            "/api/v1/admin/categories/{id}"
+    };
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(WHITE_LIST_URL).permitAll()
+                        .requestMatchers(ADMIN_AUTHORITY_URL).hasAnyRole("ADMIN", "SUPER_ADMIN")
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)

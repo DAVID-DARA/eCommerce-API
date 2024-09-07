@@ -1,6 +1,5 @@
 package com.project.ecommerce_api.configurations;
 
-import com.project.ecommerce_api.repositories.UserRepository;
 import com.project.ecommerce_api.services.CustomUserDetailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -16,7 +15,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 public class ApplicationConfig {
 
     private final CustomUserDetailService customUserDetailService;
-
 
     @Bean
     BCryptPasswordEncoder passwordEncoder() {

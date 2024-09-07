@@ -37,4 +37,16 @@
 ### Next Steps
    - Continue refining the API’s security features, particularly around JWT handling and user authentication.
    - Implement additional endpoints as per the project’s requirements.
-   
+
+## Date: 2024-09-05
+### Achievements
+1. Created Test for Authentication Service: 
+
+## Date: 2024-09-06
+### Achievements
+1. Changed Roles from Enum to Entity
+2.  Added separate Enum class RoleTypes for the Role Entity
+3.  Implemented authorities based on roles in User Entity
+4.  Implemented Role Based Access Control on certain endpoints
+5.  Created the add categories endpoint (ADMIN, SUPER_ADMIN)
+6.  Created update and delete category endpoint

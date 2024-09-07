@@ -1,6 +1,7 @@
 package com.project.ecommerce_api.services;
 
 //Project Classes
+import com.project.ecommerce_api.entities.Role;
 import com.project.ecommerce_api.entities.Token;
 import com.project.ecommerce_api.entities.User;
 import com.project.ecommerce_api.exceptions.CustomException;
@@ -14,9 +15,10 @@ import com.project.ecommerce_api.models.authDto.response.CustomResponse;
 import com.project.ecommerce_api.models.authDto.response.LoginResponse;
 import com.project.ecommerce_api.models.authDto.response.VerificationResponse;
 import com.project.ecommerce_api.models.authDto.response.SignupResponse;
+import com.project.ecommerce_api.repositories.RoleRepository;
 import com.project.ecommerce_api.repositories.TokenRepository;
 import com.project.ecommerce_api.repositories.UserRepository;
-import com.project.ecommerce_api.utilities.Role;
+import com.project.ecommerce_api.utilities.RoleEnum;
 import com.project.ecommerce_api.utilities.TokenType;
 
 //Spring Classes
@@ -41,10 +43,11 @@ import java.util.Optional;
 public class AuthenticationService {
 
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
     private final TokenRepository tokenRepository;
-    private final EmailService emailSender;
+    private final RoleRepository roleRepository;
 
+    private final PasswordEncoder passwordEncoder;
+    private final EmailService emailSender;
     private final CustomUserDetailService userDetailService;
     private final JwtService jwtService;
 
@@ -60,6 +63,13 @@ public class AuthenticationService {
         if (existingUser.isPresent()) {
             return createErrorResponse(signupResponse, HttpStatus.CONFLICT, "User Already Exists");
         }
+        Optional<Role> optionalRole = roleRepository.findByName(RoleEnum.USER);
+
+        if (optionalRole.isEmpty()) {
+            return null;
+        }
+        Role userRole = optionalRole.get();
+
 
         // Set user details
         user.setFirst_name(userInput.getFirst_name());
@@ -67,7 +77,7 @@ public class AuthenticationService {
         user.setPhone_number(userInput.getPhone_number());
         user.setEmail(userInput.getEmail());
         user.setPassword(passwordEncoder.encode(userInput.getPassword()));
-        user.setRole(Role.CUSTOMER);
+        user.setRole(userRole);
         user.setIsVerified(false);
         user.setCreatedAt(LocalDateTime.now());
 
@@ -124,10 +134,12 @@ public class AuthenticationService {
         }
         Token requiredToken = token.get();
 
+        //Check if token isUsed
         if (requiredToken.getIsUsed()) {
             return  createErrorResponse(verificationResponse, HttpStatus.IM_USED, "Token has been used");
         }
 
+        //Check if token is expired
         if (requiredToken.getExpiredAt().isBefore(LocalDateTime.now())) {
             return  createErrorResponse(verificationResponse, HttpStatus.UNAUTHORIZED, "Expired Token");
         }

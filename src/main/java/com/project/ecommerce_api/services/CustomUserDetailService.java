@@ -3,6 +3,7 @@ package com.project.ecommerce_api.services;
 import com.project.ecommerce_api.entities.User;
 import com.project.ecommerce_api.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -24,5 +25,6 @@ public class CustomUserDetailService implements UserDetailsService {
                 user.getPassword(),
                 user.getAuthorities()
         );
+
     }
 }
