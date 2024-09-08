@@ -33,7 +33,8 @@ public class SecurityConfig {
 
     private static final String[] ADMIN_AUTHORITY_URL = {
             "/api/v1/admin/categories",
-            "/api/v1/admin/categories/{id}"
+            "/api/v1/admin/categories/{id}",
+            "api/v1/admin/products"
     };
 
     @Bean

@@ -42,7 +42,7 @@
 ### Achievements
 1. Created Test for Authentication Service: 
 
-## Date: 2024-09-06
+## Date: 2024-09-06 AND 2024-09-07
 ### Achievements
 1. Role Refactor:
    - Refactored Role from an Enum to an Entity.
@@ -65,3 +65,20 @@
 ### Next Steps
 - Implement additional endpoints as per the project’s requirements.
 - Implement additional services as per the project’s requirements.
+
+## Date: 2024-09-08
+### Achievements
+1. Cloudinary:
+   - Added cloudinary API for media management
+   - Test and implemented services
+
+2. Product Management Endpoint:
+   - Created the endpoint for adding product (POST /api/v1/admin/products) for ADMIN and SUPER_ADMIN.
+
+### Notes
+   - The implementation of Role Based Access Control(RBAC) has greatly improved the security of the API.
+
+### Next Steps
+   - Properly structure the add product endpoint for better security 
+   - Implement additional endpoints as per the project’s requirements.
+   - Implement additional services as per the project’s requirements.

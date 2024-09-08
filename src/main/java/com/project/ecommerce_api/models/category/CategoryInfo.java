@@ -1,4 +1,4 @@
-package com.project.ecommerce_api.models;
+package com.project.ecommerce_api.models.category;
 
 import lombok.Builder;
 import lombok.Data;
