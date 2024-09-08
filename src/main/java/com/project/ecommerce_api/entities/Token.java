@@ -4,8 +4,8 @@ import com.project.ecommerce_api.utilities.TokenType;
 import jakarta.persistence.*;
 
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 
 import java.time.LocalDateTime;
@@ -14,9 +14,9 @@ import java.util.UUID;
 
 @Getter
 @Setter
+@ToString
 @Entity
 @Table(name = "tokens")
-@NoArgsConstructor
 public class Token {
 
     @Id

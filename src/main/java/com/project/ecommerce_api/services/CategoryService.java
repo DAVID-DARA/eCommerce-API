@@ -2,9 +2,9 @@ package com.project.ecommerce_api.services;
 
 import com.project.ecommerce_api.entities.Category;
 import com.project.ecommerce_api.exceptions.CustomException;
-import com.project.ecommerce_api.models.CategoryInfo;
-import com.project.ecommerce_api.models.CreateCategoryDto;
-import com.project.ecommerce_api.models.UpdateCategoryDto;
+import com.project.ecommerce_api.models.category.CategoryInfo;
+import com.project.ecommerce_api.models.category.CreateCategoryDto;
+import com.project.ecommerce_api.models.category.UpdateCategoryDto;
 import com.project.ecommerce_api.models.authDto.response.CustomResponse;
 import com.project.ecommerce_api.repositories.CategoryRepository;
 import lombok.RequiredArgsConstructor;
