@@ -12,4 +12,5 @@ import java.util.UUID;
 public interface ProductImageRepository extends JpaRepository<ProductImage, UUID> {
 
     List<ProductImage> findAllByProduct(Product product);
+    int deleteAllByProduct(Product product);
 }

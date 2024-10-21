@@ -2,6 +2,7 @@ package com.project.ecommerce_api.services;
 
 import com.project.ecommerce_api.entities.User;
 import com.project.ecommerce_api.exceptions.CustomException;
+import com.project.ecommerce_api.helpers.ResponseUtil;
 import com.project.ecommerce_api.models.user.UpdateUserProfileDto;
 import com.project.ecommerce_api.models.UserInfo;
 import com.project.ecommerce_api.models.authDto.response.CustomResponse;
@@ -30,7 +31,7 @@ public class UserService {
 
         Optional<User> userOptional = userRepository.findByUserId(id);
         if (userOptional.isEmpty()) {
-            return createErrorResponse(userResponse, HttpStatus.NOT_FOUND, "user not found");
+            return ResponseUtil.createErrorResponse(userResponse, HttpStatus.NOT_FOUND, "user not found");
         }
         User user = userOptional.get();
 
@@ -55,7 +56,7 @@ public class UserService {
 
         Optional<User> userOptional = userRepository.findByUserId(id);
         if (userOptional.isEmpty()) {
-            return createErrorResponse(response, HttpStatus.NOT_FOUND, "User not found");
+            return ResponseUtil.createErrorResponse(response, HttpStatus.NOT_FOUND, "User not found");
         }
         User requiredUser = userOptional.get();
 
@@ -110,16 +111,4 @@ public class UserService {
 //        return response;
 //    }
 
-    private <T> CustomResponse<T> createErrorResponse(
-            CustomResponse<T> response,
-            HttpStatus status,
-            String message
-    ) {
-        response.setSuccess(false);
-        response.setStatusCode(status);
-        response.setMessage(message);
-        response.setData(null);
-
-        return response;
-    }
 }

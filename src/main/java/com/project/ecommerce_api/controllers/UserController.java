@@ -18,7 +18,7 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getUserById (@PathVariable UUID id) {
+    public ResponseEntity<CustomResponse<UserInfo>> getUserById (@PathVariable UUID id) {
         CustomResponse<UserInfo> response = null;
         try {
             response = userService.getUserDetails(id);
@@ -29,8 +29,7 @@ public class UserController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<?> updateUserById (@PathVariable UUID id,
-                                                @RequestBody UpdateUserProfileDto profileDto) {
+    public ResponseEntity<CustomResponse<UserInfo>> updateUserById (@PathVariable UUID id, @RequestBody UpdateUserProfileDto profileDto) {
         CustomResponse<UserInfo> response = null;
         try {
             response = userService.updateUser(id, profileDto);

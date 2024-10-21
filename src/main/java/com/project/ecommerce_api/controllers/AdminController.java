@@ -1,5 +1,6 @@
 package com.project.ecommerce_api.controllers;
 
+import com.project.ecommerce_api.entities.Product;
 import com.project.ecommerce_api.models.category.CategoryInfo;
 import com.project.ecommerce_api.models.category.CreateCategoryDto;
 import com.project.ecommerce_api.models.category.UpdateCategoryDto;
@@ -13,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -62,6 +64,28 @@ public class AdminController {
 
 
     // PRODUCTS ADMIN ENDPOINTS
+    @GetMapping("/products")
+    public ResponseEntity<?> getAllProducts () {
+        CustomResponse<List<ProductInfo>> response = null;
+        try {
+            response = productService.getAllProducts();
+            return ResponseEntity.status(response.getStatusCode()).body(response);
+        } catch (Exception w) {
+            return ResponseEntity.internalServerError().body(response);
+        }
+    }
+
+    @GetMapping("/products/{id}")
+    public ResponseEntity<?> getProductById (@PathVariable UUID id) {
+        CustomResponse<ProductInfo> response = null;
+        try {
+            response = productService.getProductById(id);
+            return ResponseEntity.status(response.getStatusCode()).body(response);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(response);
+        }
+    }
+
     @PostMapping("/products")
     public ResponseEntity<?> createProduct (@RequestParam("imageFile")MultipartFile imageFile,
                                             @RequestParam("name") String name,
@@ -72,6 +96,7 @@ public class AdminController {
                                             @RequestParam("altText") String altText)
     {
         CustomResponse<ProductInfo> response = null;
+
         CreateProductDto productDto = new CreateProductDto();
         productDto.setName(name);
         productDto.setDescription(description);
@@ -80,8 +105,33 @@ public class AdminController {
         productDto.setCategoryId(categoryId);
         productDto.setAltText(altText);
         productDto.setFile(imageFile);
+
         try {
             response = productService.addProduct(productDto);
+            return ResponseEntity.status(response.getStatusCode()).body(response);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(response);
+        }
+    }
+
+    @PatchMapping("/products/update")
+    public ResponseEntity<?> updateProduct (@PathVariable UUID productId ,@RequestBody Product updateProductDto) {
+        CustomResponse<ProductInfo> response = null;
+
+        try {
+            response = productService.updateProduct(productId, updateProductDto);
+            return ResponseEntity.status(response.getStatusCode()).body(response);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(response);
+        }
+    }
+
+    @DeleteMapping("/products/{id}")
+    public ResponseEntity<?> deleteProduct (@PathVariable UUID id) {
+        CustomResponse<?> response = null;
+
+        try {
+            response = productService.deleteProduct(id);
             return ResponseEntity.status(response.getStatusCode()).body(response);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body(response);

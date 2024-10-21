@@ -2,6 +2,7 @@ package com.project.ecommerce_api.services;
 
 import com.project.ecommerce_api.entities.Category;
 import com.project.ecommerce_api.exceptions.CustomException;
+import com.project.ecommerce_api.helpers.ResponseUtil;
 import com.project.ecommerce_api.models.category.CategoryInfo;
 import com.project.ecommerce_api.models.category.CreateCategoryDto;
 import com.project.ecommerce_api.models.category.UpdateCategoryDto;
@@ -47,7 +48,7 @@ public class CategoryService {
 
         Optional<Category> optionalCategory = categoryRepository.findByName(categoryDto.getName());
         if (optionalCategory.isPresent()) {
-            return createErrorResponse(response, HttpStatus.NOT_FOUND, "category already exists");
+            return ResponseUtil.createErrorResponse(response, HttpStatus.NOT_FOUND, "category already exists");
         }
 
         Category newCategory = new Category();
@@ -82,7 +83,7 @@ public class CategoryService {
 
         Optional<Category> optionalCategory = categoryRepository.findById(categoryId);
         if (optionalCategory.isEmpty()) {
-            return createErrorResponse(response, HttpStatus.NOT_FOUND, "category not found");
+            return ResponseUtil.createErrorResponse(response, HttpStatus.NOT_FOUND, "category not found");
         }
         Category category = optionalCategory.get();
 
@@ -117,7 +118,7 @@ public class CategoryService {
 
         Optional<Category> optionalCategory = categoryRepository.findById(id);
         if (optionalCategory.isEmpty()) {
-            return  createErrorResponse(response, HttpStatus.NOT_FOUND, "category not found");
+            return  ResponseUtil.createErrorResponse(response, HttpStatus.NOT_FOUND, "category not found");
         }
 
         try {
@@ -131,19 +132,6 @@ public class CategoryService {
             logger.error("Error deleting category: {}", e.getMessage());
             throw new CustomException("Error deleting category: " + optionalCategory.get().getName());
         }
-
-        return response;
-    }
-
-    private <T> CustomResponse<T> createErrorResponse(
-            CustomResponse<T> response,
-            HttpStatus status,
-            String message
-    ) {
-        response.setSuccess(false);
-        response.setStatusCode(status);
-        response.setMessage(message);
-        response.setData(null);
 
         return response;
     }

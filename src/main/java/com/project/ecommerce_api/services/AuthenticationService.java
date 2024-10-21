@@ -5,6 +5,7 @@ import com.project.ecommerce_api.entities.Role;
 import com.project.ecommerce_api.entities.Token;
 import com.project.ecommerce_api.entities.User;
 import com.project.ecommerce_api.exceptions.CustomException;
+import com.project.ecommerce_api.helpers.ResponseUtil;
 import com.project.ecommerce_api.helpers.TokenGenerator;
 import com.project.ecommerce_api.models.JwtAuthenticationResponse;
 import com.project.ecommerce_api.models.UserInfo;
@@ -61,7 +62,7 @@ public class AuthenticationService {
         // Check for existing user
         Optional<User> existingUser = userRepository.findByEmail(userInput.getEmail());
         if (existingUser.isPresent()) {
-            return createErrorResponse(signupResponse, HttpStatus.CONFLICT, "User Already Exists");
+            return ResponseUtil.createErrorResponse(signupResponse, HttpStatus.CONFLICT, "User Already Exists");
         }
         Optional<Role> optionalRole = roleRepository.findByName(RoleEnum.USER);
 
@@ -123,30 +124,30 @@ public class AuthenticationService {
         // Check if user exists
         Optional<User> user = userRepository.findByEmail(userInput.getEmail());
         if (user.isEmpty()) {
-            return createErrorResponse(verificationResponse, HttpStatus.NOT_FOUND, "User Doesn't exist");
+            return ResponseUtil.createErrorResponse(verificationResponse, HttpStatus.NOT_FOUND, "User Doesn't exist");
         }
         User requiredUser = user.get();
 
         // Check if token exists
         Optional<Token> token = tokenRepository.findByUser(requiredUser);
         if (token.isEmpty()) {
-            return createErrorResponse(verificationResponse, HttpStatus.NOT_FOUND, "Token doesn't exist");
+            return ResponseUtil.createErrorResponse(verificationResponse, HttpStatus.NOT_FOUND, "Token doesn't exist");
         }
         Token requiredToken = token.get();
 
         //Check if token isUsed
         if (requiredToken.getIsUsed()) {
-            return  createErrorResponse(verificationResponse, HttpStatus.IM_USED, "Token has been used");
+            return  ResponseUtil.createErrorResponse(verificationResponse, HttpStatus.IM_USED, "Token has been used");
         }
 
         //Check if token is expired
         if (requiredToken.getExpiredAt().isBefore(LocalDateTime.now())) {
-            return  createErrorResponse(verificationResponse, HttpStatus.UNAUTHORIZED, "Expired Token");
+            return  ResponseUtil.createErrorResponse(verificationResponse, HttpStatus.UNAUTHORIZED, "Expired Token");
         }
 
         // Check if user input matches token value
         if (!Objects.equals(userInput.getToken(), requiredToken.getToken())) {
-            return createErrorResponse(verificationResponse, HttpStatus.UNAUTHORIZED, "Invalid Token");
+            return ResponseUtil.createErrorResponse(verificationResponse, HttpStatus.UNAUTHORIZED, "Invalid Token");
         }
 
         // Update user and token status
@@ -196,13 +197,13 @@ public class AuthenticationService {
         // Check if user exists
         Optional<User> user = userRepository.findByEmail(userInput.getEmail());
         if (user.isEmpty()) {
-            return createErrorResponse(loginResponse, HttpStatus.NOT_FOUND, "User Doesn't exist");
+            return ResponseUtil.createErrorResponse(loginResponse, HttpStatus.NOT_FOUND, "User Doesn't exist");
         }
         User requiredUser = user.get();
 
         boolean isValidPassword = passwordEncoder.matches(userInput.getPassword(), requiredUser.getPassword());
         if (!isValidPassword) {
-            return createErrorResponse(loginResponse, HttpStatus.UNAUTHORIZED, "Invalid Password");
+            return ResponseUtil.createErrorResponse(loginResponse, HttpStatus.UNAUTHORIZED, "Invalid Password");
         }
 
         if (!requiredUser.getIsVerified()) {
@@ -251,18 +252,5 @@ public class AuthenticationService {
             throw new CustomException("Error in user authentication");
         }
         return loginResponse;
-    }
-
-    private <T> CustomResponse<T> createErrorResponse(
-            CustomResponse<T> response,
-            HttpStatus status,
-            String message
-    ) {
-        response.setSuccess(false);
-        response.setStatusCode(status);
-        response.setMessage(message);
-        response.setData(null);
-
-        return response;
     }
 }

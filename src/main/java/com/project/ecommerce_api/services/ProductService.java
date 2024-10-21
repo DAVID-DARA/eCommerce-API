@@ -4,11 +4,13 @@ import com.project.ecommerce_api.entities.Category;
 import com.project.ecommerce_api.entities.Product;
 import com.project.ecommerce_api.entities.ProductImage;
 import com.project.ecommerce_api.exceptions.CustomException;
+import com.project.ecommerce_api.exceptions.ResourceNotFoundException;
 import com.project.ecommerce_api.helpers.CloudinaryService;
+import com.project.ecommerce_api.helpers.ResponseUtil;
 import com.project.ecommerce_api.models.authDto.response.CustomResponse;
 import com.project.ecommerce_api.models.product.CreateProductDto;
-import com.project.ecommerce_api.models.product.ProductImageInfo;
 import com.project.ecommerce_api.models.product.ProductInfo;
+import com.project.ecommerce_api.models.product.UpdateProductDto;
 import com.project.ecommerce_api.repositories.CategoryRepository;
 import com.project.ecommerce_api.repositories.ProductImageRepository;
 import com.project.ecommerce_api.repositories.ProductRepository;
@@ -18,7 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -33,7 +35,48 @@ public class ProductService {
 
     private final CloudinaryService cloudinaryService;
     private static final Logger logger = LoggerFactory.getLogger(ProductService.class);
+    private final CustomUserDetailService customUserDetailService;
 
+    public CustomResponse<List<ProductInfo>> getAllProducts () {
+        CustomResponse<List<ProductInfo>> response = new CustomResponse<>();
+        List<ProductInfo> productsInfos = new ArrayList<>();
+
+        try {
+            List<Product> allProducts = productRepository.findAll();
+            for (Product product : allProducts) {
+                ProductInfo productInfo = getProductInfo(product);
+                productsInfos.add(productInfo);
+            }
+            response.setSuccess(true);
+            response.setStatusCode(HttpStatus.OK);
+            response.setMessage("All Products");
+            response.setData(productsInfos);
+        } catch (Exception e) {
+            throw new CustomException("Error retrieve products");
+        }
+        return response;
+    }
+
+    public CustomResponse<ProductInfo> getProductById (UUID id) {
+        CustomResponse<ProductInfo> response = new CustomResponse<>();
+        ProductInfo productInfo;
+
+        Optional<Product> productOptional = productRepository.findById(id);
+        if (productOptional.isEmpty()) return ResponseUtil.createErrorResponse(response, HttpStatus.NOT_FOUND, "product not found");
+
+
+        Product product = productOptional.get();
+        productInfo = getProductInfo(product);
+
+        response.setSuccess(true);
+        response.setStatusCode(HttpStatus.FOUND);
+        response.setMessage("Product Details");
+        response.setData(productInfo);
+
+        return response;
+    }
+
+    @Transactional
     public CustomResponse<ProductInfo> addProduct (CreateProductDto createProductDto) {
         CustomResponse<ProductInfo> response = new CustomResponse<>();
         ProductInfo productInfo;
@@ -41,18 +84,18 @@ public class ProductService {
         // Check if category exists
         Optional<Category> categoryOptional = categoryRepository.findById(createProductDto.getCategoryId());
         if (categoryOptional.isEmpty()) {
-            return createErrorResponse(response, HttpStatus.PRECONDITION_REQUIRED, "Category not found");
+            return ResponseUtil.createErrorResponse(response, HttpStatus.PRECONDITION_REQUIRED, "Category not found");
         }
 
         //Check if product exists
         Optional<Product> productOptional = productRepository.findByName(createProductDto.getName());
         if (productOptional.isPresent()) {
-            return createErrorResponse(response, HttpStatus.CONFLICT, "product exists");
+            return ResponseUtil.createErrorResponse(response, HttpStatus.CONFLICT, "product exists");
         }
 
         //Check if image file available
         if (createProductDto.getFile().isEmpty()) {
-            return createErrorResponse(response, HttpStatus.BAD_REQUEST, "No image file");
+            return ResponseUtil.createErrorResponse(response, HttpStatus.BAD_REQUEST, "No image file");
         }
 
 
@@ -81,23 +124,7 @@ public class ProductService {
             Product savedProduct = productRepository.save(product);
             productImageRepository.save(productImage);
 
-            List<String> productImageUrls = productImageRepository.findAllByProduct(savedProduct)
-                    .stream()
-                    .map(ProductImage::getImageUrl)
-                    .collect(Collectors.toList());
-
-
-            productInfo = ProductInfo.builder()
-                    .id(savedProduct.getId())
-                    .name(savedProduct.getName())
-                    .description(savedProduct.getDescription())
-                    .price(savedProduct.getPrice())
-                    .stockQuantity(savedProduct.getStockQuantity())
-                    .category(savedProduct.getCategory())
-                    .productImages(productImageUrls)
-                    .status(savedProduct.getStatus())
-                    .build();
-
+            productInfo = getProductInfo(savedProduct);
             response.setSuccess(true);
             response.setMessage("Product Info");
             response.setStatusCode(HttpStatus.CREATED);
@@ -111,16 +138,104 @@ public class ProductService {
         return response;
     }
 
-    private <T> CustomResponse<T> createErrorResponse(
-            CustomResponse<T> response,
-            HttpStatus status,
-            String message
-    ) {
-        response.setSuccess(false);
-        response.setStatusCode(status);
-        response.setMessage(message);
-        response.setData(null);
+    @Transactional
+    public CustomResponse<ProductInfo> updateProduct(UUID productId, Product updatedProductDetails) {
+        CustomResponse<ProductInfo> response = new CustomResponse<>();
+
+        // Find the existing product by ID
+        Optional<Product> existingProductOptional = productRepository.findById(productId);
+
+        if (existingProductOptional.isEmpty()) {
+            // Return an error response if the product is not found
+            return ResponseUtil.createErrorResponse(response, HttpStatus.NOT_FOUND, "Product not found");
+        }
+        Product existingProduct = existingProductOptional.get();
+
+        // Only update fields that are non-null in the updatedProductDetails object
+        if (updatedProductDetails.getName() != null) {
+            existingProduct.setName(updatedProductDetails.getName());
+        }
+        if (updatedProductDetails.getDescription() != null) {
+            existingProduct.setDescription(updatedProductDetails.getDescription());
+        }
+        if (updatedProductDetails.getPrice() != null) {
+            existingProduct.setPrice(updatedProductDetails.getPrice());
+        }
+
+        if (updatedProductDetails.getStockQuantity() != null) {
+            existingProduct.setStockQuantity(updatedProductDetails.getStockQuantity());
+        }
+        if (updatedProductDetails.getCategory() != null) {
+            existingProduct.setCategory(updatedProductDetails.getCategory());
+        }
+        if (updatedProductDetails.getStatus() != null) {
+            existingProduct.setStatus(updatedProductDetails.getStatus());
+        }
+
+        // Save the updated product (no new product is created since we're updating an existing one)
+        try {
+            productRepository.save(existingProduct);
+            ProductInfo updatedProduct = getProductInfo(existingProduct);
+
+            // Set the response details
+            response.setSuccess(true);
+            response.setStatusCode(HttpStatus.OK);
+            response.setMessage("Product updated successfully");
+            response.setData(updatedProduct);
+
+            return response;
+
+        } catch (Exception e) {
+            logger.error("Error updating product: {}", e.getMessage());
+            throw new CustomException("Error updating product");
+        }
+    }
+
+    @Transactional
+    public CustomResponse<ProductInfo> deleteProduct(UUID productID) {
+        CustomResponse<ProductInfo> response = new CustomResponse<>();
+
+        Product product = productRepository.findById(productID)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+
+        // Delete product images in bulk
+        int deletedImagesCount = productImageRepository.deleteAllByProduct(product);
+        if (deletedImagesCount == 0) {
+            logger.info("Product {} did not have any image files to delete", productID);
+        }
+
+        ProductInfo productInfo = getProductInfo(product);
+        // Delete the product
+        productRepository.delete(product);
+
+        response.setSuccess(true);
+        response.setStatusCode(HttpStatus.OK);
+        response.setMessage("Product and associated images deleted successfully: ");
+        response.setData(productInfo);
 
         return response;
+    }
+
+
+    // ENTITY HELPER FUNCTION/ METHOD
+    private ProductInfo getProductInfo(Product product) {
+        ProductInfo productInfo;
+        List<String> productImageUrls = productImageRepository.findAllByProduct(product)
+                .stream()
+                .map(ProductImage::getImageUrl)
+                .collect(Collectors.toList());
+
+        productInfo = ProductInfo.builder()
+                .id(product.getId())
+                .name(product.getName())
+                .description(product.getDescription())
+                .price(product.getPrice())
+                .stockQuantity(product.getStockQuantity())
+                .category(product.getCategory())
+                .productImages(productImageUrls)
+                .status(product.getStatus())
+                .build();
+
+        return productInfo;
     }
 }
